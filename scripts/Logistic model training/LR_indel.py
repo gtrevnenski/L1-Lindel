@@ -22,6 +22,16 @@ def corr(x, y):
     return np.corrcoef(x, y)[0, 1] ** 2
 
 def onehotencoder(seq):
+    '''
+    Encodes a sequence into one-hot encoding.
+
+    For each position there are 4 values, representing the 4 nucleotides. Only the nucleotide that is in that position
+    gets value 1, the others are 1. There will be as many 1-values as there are nucleotides in the sequence.
+
+    For each dinucleotide there are 16 values, representing 4*4=16 possible combinations of two nucleotides. The one
+    in this position gets value 1, others are 0.
+    '''
+
     nt= ['A','T','C','G']
     head = []
     l = len(seq)
@@ -53,10 +63,13 @@ data     = np.loadtxt(workdir+fname, delimiter="\t", dtype=str)
 Seqs = data[:,0]
 data = data[:,1:].astype('float32')
 
-# Sum up deletions and insertions to 
+# Sum up deletions and insertions to
+''' The first 'feature_size' values are inputs, all others are output.'''
 X = data[:,:feature_size]
 y = data[:, feature_size:]
 
+''' The next few lines shuffle the data, to randomize which items are training and which ar validation data.
+The size of train and validation data is defined. '''
 np.random.seed(121)
 idx = np.arange(len(y))
 np.random.shuffle(idx)
@@ -64,6 +77,7 @@ X, y = X[idx], y[idx]
 train_size = round(len(data) * 0.9) if 'ForeCasT' in fname else 3900
 valid_size = round(len(data) * 0.1) if 'ForeCasT' in fname else 450 
 
+''' Each sequence is encoded and stored in the array for either training or validation data.'''
 Seq_train = Seqs[idx]
 x_train,x_valid = [],[]
 y_train,y_valid = [],[]
