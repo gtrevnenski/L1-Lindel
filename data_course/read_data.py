@@ -91,3 +91,8 @@ with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
         file.write(key + ": " + str(frequency_comb[key]) + "\n")
 
+with open("combi_frequency_arr.txt", 'w') as file:
+    for target, outcomes in frequency_comb.items():
+        for freq in outcomes.values():
+            file.write(str(freq[0]) + "," + str(freq[1]) + "," + str(freq[2])+"\n")
+        file.write("---\n")
