@@ -75,24 +75,16 @@ for i in range(len(matrix3)):
         else:
             frequency_comb[matrix3[i][2]][matrix3[i][3]][2] += 1
 
-with open("repl1_frequency_data.txt", 'w') as file:
-    for key in frequency_repl1:
-        file.write(key + ": " + str(frequency_repl1[key]) + "\n")
-
-with open("repl2_frequency_data.txt", 'w') as file:
-    for key in frequency_repl2:
-        file.write(key + ": " + str(frequency_repl2[key]) + "\n")
-
-with open("repl3_frequency_data.txt", 'w') as file:
-    for key in frequency_repl3:
-        file.write(key + ": " + str(frequency_repl3[key]) + "\n")
 
 with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
         file.write(key + ": " + str(frequency_comb[key]) + "\n")
 
-with open("combi_frequency_arr.txt", 'w') as file:
+with open("combi_frequency_arr2.txt", 'w') as file:
     for target, outcomes in frequency_comb.items():
-        for freq in outcomes.values():
-            file.write(str(freq[0]) + "," + str(freq[1]) + "," + str(freq[2])+"\n")
+        for i in range(3):
+            for freq in outcomes.values():
+                file.write(str(freq[i]) + ",")
+            file.write("\n")
         file.write("---\n")
+
