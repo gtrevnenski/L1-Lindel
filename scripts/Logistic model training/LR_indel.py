@@ -94,6 +94,8 @@ y_train,y_valid = np.array(y_train),np.array(y_valid)
 # Train model
 lambdas = 10 ** np.arange(-10, -1, 0.1)
 errors_l1, errors_l2 = [], []
+''' tqdm just shows a progress bar while it loops over values of lambda (penalty strength)
+Train model with both L1 and L2 regularization and compute the errors.'''
 for l in tqdm(lambdas):
     np.random.seed(0)
     model = Sequential()
@@ -119,6 +121,7 @@ np.save(workdir+'mse_l1_indel.npy',errors_l1)
 np.save(workdir+'mse_l2_indel.npy',errors_l2)
 
 # final model
+'''Choose the lambda for L1 and L2 separately that gives the smallest error.'''
 l = lambdas[np.argmin(errors_l1)]
 np.random.seed(0)
 model = Sequential()
