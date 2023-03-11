@@ -62,11 +62,12 @@ with open("combi_frequency_data.txt", 'w') as file:
 
 with open("combi_frequency_arr2.txt", 'w') as file:
     for target, outcomes in frequency_comb.items():
-        for i in range(3):
-            for freq in outcomes.values():
-                file.write(str(freq[i]) + ",")
-            file.write("\n")
-        file.write("---\n")
+        if len (outcomes.values()) > 0:
+            for i in range(3):
+                for freq in outcomes.values():
+                    file.write(str(freq[i]) + ",")
+                file.write("\n")
+            file.write("---\n")
 
 repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
