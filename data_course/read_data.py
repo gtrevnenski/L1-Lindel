@@ -1,19 +1,21 @@
 import pandas as pd
 import pickle as pkl
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Tab delimited files which consist of training and test samples. 
 # First column is the guide sequence, the next 3033 columns are the features(2649 MH binary + 384 one-hot encoded features) 
 # and the last 557 columns are the observed outcome(class) frequencies.
 
-Lindel_training = pd.read_csv("Lindel_training.txt", sep='\t')
+# Lindel_training = pd.read_csv("data_course/Lindel_training.txt", sep='\t')
 
-label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
+# label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
 
 
-matrix1 = pkl.load(open('NHEJ_rep1_final_matrix.pkl','rb'))
-matrix2 = pkl.load(open('NHEJ_rep2_final_matrix.pkl','rb'))
-matrix3 = pkl.load(open('NHEJ_rep3_final_matrix.pkl','rb'))
+matrix1 = pkl.load(open('data_course/NHEJ_rep1_final_matrix.pkl','rb'))
+matrix2 = pkl.load(open('data_course/NHEJ_rep2_final_matrix.pkl','rb'))
+matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
 
 ### FIGURE 2B - VIOLIN PLOT PROCESSING ###
 
@@ -88,3 +90,61 @@ with open("combi_frequency_arr2.txt", 'w') as file:
             file.write("\n")
         file.write("---\n")
 
+repl_1_2_correlation_coefficients = []
+repl_2_3_correlation_coefficients = []
+repl_1_3_correlation_coefficients = [] 
+
+for target in frequency_comb:
+    frequency_repl1 = []
+    frequency_repl2 = []
+    frequency_repl3 = []
+
+    for outcome in frequency_comb[target]:
+        frequency_repl1.append(frequency_comb[target][outcome][0])
+        frequency_repl2.append(frequency_comb[target][outcome][1])
+        frequency_repl3.append(frequency_comb[target][outcome][2])
+
+    if len(frequency_repl1) > 1:
+
+        if np.var(frequency_repl1) > 0 and np.var(frequency_repl2) > 0:      
+            repl_1_2_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl2)[0][1])
+        if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:      
+            repl_1_3_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl3)[0][1])
+        if np.var(frequency_repl2) > 0 and np.var(frequency_repl3) > 0:      
+            repl_2_3_correlation_coefficients.append(np.corrcoef(frequency_repl2, frequency_repl3)[0][1])
+
+
+repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 2', x] for x in repl_1_2_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
+
+repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 3', x] for x in repl_1_3_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
+
+repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs. rep 3', x] for x in repl_2_3_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
+
+repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe]
+repl_combined_dataframe = pd.concat(repl_combined)
+# dirty_corr_coef = [ele for ele in repl_1_2_correlation_coefficients if ele > 0]
+sns.set(style='whitegrid')
+sns.violinplot(x="index", y="corr_coef", data=repl_combined_dataframe)
+plt.show()
+
+with open("data_course/pearson_corr_1_2.txt", 'w') as file:
+    file.write(str(repl_1_2_correlation_coefficients))
+
+with open("data_course/pearson_corr_1_3.txt", 'w') as file:
+    file.write(str(repl_1_3_correlation_coefficients))
+
+with open("data_course/pearson_corr_2_3.txt", 'w') as file:
+    file.write(str(repl_2_3_correlation_coefficients))
+
+
+# with open("repl1_frequency_data.txt", 'w') as file:
+#     for key in frequency_repl1:
+#         file.write(key + ": " + str(frequency_repl1[key]) + "\n")
+
+# with open("repl2_frequency_data.txt", 'w') as file:
+#     for key in frequency_repl2:
+#         file.write(key + ": " + str(frequency_repl2[key]) + "\n")
+
+# with open("repl3_frequency_data.txt", 'w') as file:
+#     for key in frequency_repl3:
+#         file.write(key + ": " + str(frequency_repl3[key]) + "\n")
