@@ -22,32 +22,20 @@ matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
 # idea is to get an array of allele frequencies per target and use that with https://realpython.com/numpy-scipy-pandas-correlation-python/
 # to calculate the correlation between two target sequences. What if we observe non-TW alleles that are present in 1 replicate but not in the other?
 
-frequency_repl1 = {}
-frequency_repl2 = {}
-frequency_repl3 = {}
-
 frequency_comb = {}
 # initialize frequency array
 for i in range(len(matrix1)):
-    frequency_repl1[matrix1[i][2]] = {}
     frequency_comb[matrix1[i][2]] = {}
 
 for i in range(len(matrix2)):
-    frequency_repl2[matrix2[i][2]] = {}
     frequency_comb[matrix2[i][2]] = {}
 
 for i in range(len(matrix3)):
-    frequency_repl3[matrix3[i][2]] = {}
     frequency_comb[matrix3[i][2]] = {}
 
 # count frequencies of different alleles per target
 for i in range(len(matrix1)):
     if matrix1[i][2] != matrix1[i][3]:
-        if matrix1[i][3] not in frequency_repl1[matrix1[i][2]]:
-            frequency_repl1[matrix1[i][2]][matrix1[i][3]] = 1
-        else:
-            frequency_repl1[matrix1[i][2]][matrix1[i][3]] += 1
-
         if matrix1[i][3] not in frequency_comb[matrix1[i][2]]:
             frequency_comb[matrix1[i][2]][matrix1[i][3]] = [1, 0, 0]
         else:
@@ -55,11 +43,6 @@ for i in range(len(matrix1)):
 
 for i in range(len(matrix2)):
     if matrix2[i][2] != matrix2[i][3]:
-        if matrix2[i][3] not in frequency_repl2[matrix2[i][2]]:
-            frequency_repl2[matrix2[i][2]][matrix2[i][3]] = 1
-        else:
-            frequency_repl2[matrix2[i][2]][matrix2[i][3]] += 1
-
         if matrix2[i][3] not in frequency_comb[matrix2[i][2]]:
             frequency_comb[matrix2[i][2]][matrix2[i][3]] = [0, 1, 0]
         else:
@@ -67,11 +50,6 @@ for i in range(len(matrix2)):
 
 for i in range(len(matrix3)):
     if matrix3[i][2] != matrix3[i][3]:
-        if matrix3[i][3] not in frequency_repl3[matrix3[i][2]]:
-            frequency_repl3[matrix3[i][2]][matrix3[i][3]] = 1
-        else:
-            frequency_repl3[matrix3[i][2]][matrix3[i][3]] += 1
-
         if matrix3[i][3] not in frequency_comb[matrix3[i][2]]:
             frequency_comb[matrix3[i][2]][matrix3[i][3]] = [0, 0, 1]
         else:
@@ -94,24 +72,50 @@ repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
 repl_1_3_correlation_coefficients = [] 
 
+repl_1Normal_2Permuted_correlation_coefficients = []
+repl_1Normal_3Permuted_correlation_coefficients = []
+repl_2Normal_1Permuted_correlation_coefficients = []
+repl_2Normal_3Permuted_correlation_coefficients = [] 
+repl_3Normal_1Permuted_correlation_coefficients = []
+repl_3Normal_2Permuted_correlation_coefficients = []
+
 for target in frequency_comb:
     frequency_repl1 = []
     frequency_repl2 = []
     frequency_repl3 = []
-
+    
     for outcome in frequency_comb[target]:
         frequency_repl1.append(frequency_comb[target][outcome][0])
         frequency_repl2.append(frequency_comb[target][outcome][1])
         frequency_repl3.append(frequency_comb[target][outcome][2])
 
-    if len(frequency_repl1) > 1:
+    permuted_replc1 = np.random.permutation(frequency_repl1)
+    permuted_replc2 = np.random.permutation(frequency_repl2)
+    permuted_replc3 = np.random.permutation(frequency_repl3)
 
+    if len(frequency_repl1) > 1:
+        
+        # normal corr coefficient (i.e. frequencies not permuted (Fig. 2A in the paper))
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl2) > 0:      
             repl_1_2_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl2)[0][1])
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:      
             repl_1_3_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(frequency_repl3) > 0:      
             repl_2_3_correlation_coefficients.append(np.corrcoef(frequency_repl2, frequency_repl3)[0][1])
+
+        # permuted corr coefficient (i.e. frequencies not permuted (Fig. 2B in the paper))
+        if np.var(frequency_repl1) > 0 and np.var(permuted_replc2) > 0:      
+            repl_1Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc2)[0][1])
+        if np.var(frequency_repl1) > 0 and np.var(permuted_replc3) > 0:      
+            repl_1Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc3)[0][1])
+        if np.var(frequency_repl2) > 0 and np.var(permuted_replc1) > 0:      
+            repl_2Normal_1Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl2, permuted_replc1)[0][1])
+        if np.var(frequency_repl2) > 0 and np.var(permuted_replc3) > 0:      
+            repl_2Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl2, permuted_replc3)[0][1])
+        if np.var(frequency_repl3) > 0 and np.var(permuted_replc1) > 0:      
+            repl_3Normal_1Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl3, permuted_replc1)[0][1])
+        if np.var(frequency_repl3) > 0 and np.var(permuted_replc2) > 0:      
+            repl_3Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl3, permuted_replc2)[0][1])
 
 
 repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 2', x] for x in repl_1_2_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
@@ -120,7 +124,11 @@ repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 3', 
 
 repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs. rep 3', x] for x in repl_2_3_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
 
-repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe]
+permuted_concatenated = repl_1Normal_2Permuted_correlation_coefficients + repl_1Normal_3Permuted_correlation_coefficients + repl_2Normal_1Permuted_correlation_coefficients + repl_2Normal_3Permuted_correlation_coefficients + repl_3Normal_1Permuted_correlation_coefficients + repl_3Normal_2Permuted_correlation_coefficients
+
+repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['permuted comparison', x] for x in permuted_concatenated if x >= 0], columns=['index', 'corr_coef'])
+
+repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe, repl_permuted_correlation_coefficients_dataframe]
 repl_combined_dataframe = pd.concat(repl_combined)
 # dirty_corr_coef = [ele for ele in repl_1_2_correlation_coefficients if ele > 0]
 sns.set(style='whitegrid')
