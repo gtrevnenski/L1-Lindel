@@ -4,18 +4,24 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Tab delimited files which consist of training and test samples. 
-# First column is the guide sequence, the next 3033 columns are the features(2649 MH binary + 384 one-hot encoded features) 
-# and the last 557 columns are the observed outcome(class) frequencies.
+# # Tab delimited files which consist of training and test samples. 
+# # First column is the guide sequence, the next 3033 columns are the features(2649 MH binary + 384 one-hot encoded features) 
+# # and the last 557 columns are the observed outcome(class) frequencies.
 
-# Lindel_training = pd.read_csv("data_course/Lindel_training.txt", sep='\t')
+# # Lindel_training = pd.read_csv("data_course/Lindel_training.txt", sep='\t')
 
-# label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
+# # label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
 
 
 matrix1 = pkl.load(open('data_course/NHEJ_rep1_final_matrix.pkl','rb'))
 matrix2 = pkl.load(open('data_course/NHEJ_rep2_final_matrix.pkl','rb'))
 matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
+
+# types_of_mutations = set()
+# for i in range(len(matrix1)):
+#     types_of_mutations.add(matrix1[i][9])
+
+# print(types_of_mutations) # you will see that there's a mutation called 'complex' which most probably represents a combination of substitutions, insertions, and deletions that they do not take into account for their analysis.
 
 ### FIGURE 2B - VIOLIN PLOT PROCESSING ###
 
@@ -23,7 +29,7 @@ matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
 # to calculate the correlation between two target sequences. What if we observe non-TW alleles that are present in 1 replicate but not in the other?
 
 frequency_comb = {}
-# initialize frequency array
+# initialize frequency array 
 for i in range(len(matrix1)):
     frequency_comb[matrix1[i][2]] = {}
 
@@ -35,21 +41,21 @@ for i in range(len(matrix3)):
 
 # count frequencies of different alleles per target
 for i in range(len(matrix1)):
-    if matrix1[i][2] != matrix1[i][3]:
+    if matrix1[i][2] != matrix1[i][3] and matrix1[i][9] != 'complex':
         if matrix1[i][3] not in frequency_comb[matrix1[i][2]]:
             frequency_comb[matrix1[i][2]][matrix1[i][3]] = [1, 0, 0]
         else:
             frequency_comb[matrix1[i][2]][matrix1[i][3]][0] += 1
 
 for i in range(len(matrix2)):
-    if matrix2[i][2] != matrix2[i][3]:
+    if matrix2[i][2] != matrix2[i][3] and matrix2[i][9] != 'complex':
         if matrix2[i][3] not in frequency_comb[matrix2[i][2]]:
             frequency_comb[matrix2[i][2]][matrix2[i][3]] = [0, 1, 0]
         else:
             frequency_comb[matrix2[i][2]][matrix2[i][3]][1] += 1
 
 for i in range(len(matrix3)):
-    if matrix3[i][2] != matrix3[i][3]:
+    if matrix3[i][2] != matrix3[i][3] and matrix3[i][9] != 'complex':
         if matrix3[i][3] not in frequency_comb[matrix3[i][2]]:
             frequency_comb[matrix3[i][2]][matrix3[i][3]] = [0, 0, 1]
         else:
