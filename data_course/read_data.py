@@ -55,14 +55,22 @@ for i in range(len(matrix3)):
         else:
             frequency_comb[matrix3[i][2]][matrix3[i][3]][2] += 1
 
+# Remove outcomes with less than 10 UMIs.
+for target, outcome_dicts in frequency_comb.items():
+    to_remove = []
+    for outcome, freqs in outcome_dicts.items():
+        if sum(freqs) < 10:
+            to_remove.append(outcome)
+    for item in to_remove:
+        outcome_dicts.pop(item)
 
 with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
         file.write(key + ": " + str(frequency_comb[key]) + "\n")
 
-with open("combi_frequency_arr2.txt", 'w') as file:
+with open("combi_frequency_arr3.txt", 'w') as file:
     for target, outcomes in frequency_comb.items():
-        if len (outcomes.values()) > 0:
+        if len(outcomes.values()) > 0:
             for i in range(3):
                 for freq in outcomes.values():
                     file.write(str(freq[i]) + ",")
