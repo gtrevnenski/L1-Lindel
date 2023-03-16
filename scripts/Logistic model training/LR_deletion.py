@@ -12,7 +12,7 @@ from keras.callbacks import EarlyStopping
 from keras.layers import Dense, Input, Flatten
 from keras.models import Sequential, load_model
 from keras.regularizers import l2, l1
-from Modeling.gen_features import *
+# from Modeling.gen_features import *
 
 
 # Define useful functions
