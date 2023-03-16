@@ -12,7 +12,7 @@ from keras.callbacks import EarlyStopping
 from keras.layers import Dense, Input, Flatten
 from keras.models import Sequential, load_model
 from keras.regularizers import l2, l1
-from Modeling.gen_features import *
+# from Modeling.gen_features import *
 
 
 # Define useful functions
@@ -23,6 +23,15 @@ def corr(x, y):
     return np.corrcoef(x, y)[0, 1] ** 2
 
 def onehotencoder(seq):
+    '''
+    Encodes a sequence into one-hot encoding.
+
+    For each position there are 4 values, representing the 4 nucleotides. Only the nucleotide that is in that position
+    gets value 1, the others are 1. There will be as many 1-values as there are nucleotides in the sequence.
+
+    For each dinucleotide there are 16 values, representing 4*4=16 possible combinations of two nucleotides. The one
+    in this position gets value 1, others are 0.
+    '''
     nt= ['A','T','C','G']
     head = []
     l = len(seq)
@@ -57,6 +66,10 @@ Seqs = data[:,0]
 data = data[:,1:].astype('float32')
 
 # Sum up deletions and insertions to 
+''' The first 'feature_size' values are inputs, all others are output.
+The next few lines shuffle the data, to randomize which items are training and which ar validation data.
+The size of train and validation data is defined. '''
+
 X = data[:,:feature_size]
 y = data[:, feature_size:]
 
@@ -67,6 +80,9 @@ X, y = X[idx], y[idx]
 train_size = round(len(data) * 0.9) if 'ForeCasT' in fname else 3900
 valid_size = round(len(data) * 0.1) if 'ForeCasT' in fname else 450 
 
+''' Filter out the data where the sum of outputs for deletions are not between 0 and 1.
+Only store the las 21 features: insertion alleles. Normalize so that probabilities of all insertions sum to 1, because
+we only consider insertions in this part of the model.'''
 Seq_train = Seqs[idx]
 x_train,x_valid = [],[]
 y_train,y_valid = [],[]
@@ -85,6 +101,8 @@ size_input = x_train.shape[1]
 
 
 # Train model
+''' Use different values of lambda (penalty strength) for training to determine the best.
+Train model with both L1 and L2 regularization and compute the errors.'''
 lambdas = 10 ** np.arange(-10, -1, 0.1) # for activation function test
 errors_l1, errors_l2 = [], []
 for l in tqdm(lambdas):
@@ -112,6 +130,7 @@ np.save(workdir+'mse_l1_ins.npy',errors_l1)
 np.save(workdir+'mse_l2_ins.npy',errors_l2)
 
 # final model
+'''Choose the lambda for L1 and L2 separately that gives the smallest error.'''
 l = lambdas[np.argmin(errors_l1)]
 np.random.seed(0)
 model = Sequential()
