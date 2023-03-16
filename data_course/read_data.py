@@ -113,6 +113,8 @@ for target in frequency_comb:
         # normal corr coefficient (i.e. frequencies not permuted (Fig. 2A in the paper))
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl2) > 0:      
             repl_1_2_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl2)[0][1])
+            if(np.corrcoef(frequency_repl1, frequency_repl2)[0][1] < 0):
+                print(np.corrcoef(frequency_repl1, frequency_repl2)[0][1], frequency_repl1, frequency_repl2)
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:      
             repl_1_3_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(frequency_repl3) > 0:      
@@ -121,6 +123,8 @@ for target in frequency_comb:
         # permuted corr coefficient (i.e. frequencies not permuted (Fig. 2B in the paper))
         if np.var(frequency_repl1) > 0 and np.var(permuted_replc2) > 0:      
             repl_1Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc2)[0][1])
+            if(np.corrcoef(frequency_repl1, permuted_replc2)[0][1] < 0):
+                print(np.corrcoef(frequency_repl1, permuted_replc2)[0][1], frequency_repl1, permuted_replc2)
         if np.var(frequency_repl1) > 0 and np.var(permuted_replc3) > 0:      
             repl_1Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(permuted_replc1) > 0:      
