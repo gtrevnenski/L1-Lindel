@@ -70,6 +70,14 @@ for target, outcome_dicts in frequency_comb.items():
     for item in to_remove:
         outcome_dicts.pop(item)
 
+# Remove targets with less than 3 outcomes
+to_remove = []
+for target, outcome_dicts in frequency_comb.items():
+    if len(outcome_dicts) < 3:
+        to_remove.append(target)
+for item in to_remove:
+    frequency_comb.pop(item)
+
 with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
         file.write(key + ": " + str(frequency_comb[key]) + "\n")
