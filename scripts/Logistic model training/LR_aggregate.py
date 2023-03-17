@@ -7,6 +7,7 @@ import os,sys,csv,re
 from tqdm import tqdm_notebook as tqdm
 import pylab as pl
 import numpy as np
+import matplotlib.pyplot as plt
 
 from keras.callbacks import EarlyStopping
 from keras.layers import Dense, Input, Flatten
@@ -55,7 +56,8 @@ def onehotencoder(seq):
 # Load data
 #threshold = sys.argv[1]
 
-
+"""
+''' This part loads testing data. '''
 workdir  = sys.argv[1]
 fname    = sys.argv[2]
 
@@ -66,88 +68,53 @@ Seqs = data[:,0]
 data = data[:,1:].astype('float32')
 
 # Sum up deletions and insertions to 
-''' The first 'feature_size' values are inputs, all others are output.
-The next few lines shuffle the data, to randomize which items are training and which ar validation data.
-The size of train and validation data is defined. '''
+''' The first 'feature_size' values are inputs, all others are output. The Aggregate Model will output the average
+frequency of each class, independently of the input. The frequencies are stored to a numpy array file. '''
 
 X = data[:,:feature_size]
 y = data[:, feature_size:]
 
-np.random.seed(121)
-idx = np.arange(len(y))
-np.random.shuffle(idx)
-X, y = X[idx], y[idx]
-train_size = round(len(data) * 0.9) if 'ForeCasT' in fname else 3900
-valid_size = round(len(data) * 0.1) if 'ForeCasT' in fname else 450 
+agg_output = np.mean(y, axis=0)
+print(agg_output.shape)
+np.save("agg_output", agg_output)
+"""
 
-''' Filter out the data where the sum of outputs for deletions are not between 0 and 1.
-Only store the las 21 features: insertion alleles. Normalize so that probabilities of all insertions sum to 1, because
-we only consider insertions in this part of the model.'''
-Seq_train = Seqs[idx]
-x_train,x_valid = [],[]
-y_train,y_valid = [],[]
-for i in range(train_size):
-    if 1> sum(y[i,-21:])> 0 :# 5 is a random number i picked if i use pred_size here it will be -21:0 it will just generate empty array
-        y_train.append(y[i,-21:]/sum(y[i,-21:]))
-        x_train.append(onehotencoder(Seq_train[i][-6:]))
-for i in range(train_size,len(Seq_train)):
-    if 1> sum(y[i,-21:])>0 : 
-        y_valid.append(y[i,-21:]/sum(y[i,-21:]))
-        x_valid.append(onehotencoder(Seq_train[i][-6:]))
+"""
+''' This part computes the MSE for the aggregate model.
+We load the test data in "Lindel_test.txt". The first 'feature_size' values are inputs, all others are output. For each
+of the input items in the data, we compute the MSE between the output and the output of the Aggregate Model. These
+values are collected and visualized in a histogram. '''
 
-x_train,x_valid = np.array(x_train),np.array(x_valid)
-y_train,y_valid = np.array(y_train),np.array(y_valid)
-size_input = x_train.shape[1]
+workdir  = sys.argv[1]
+fname    = "Lindel_test.txt"
 
+label,rev_index,features = pkl.load(open(workdir+'feature_index_all.pkl','rb'))
+feature_size = len(features) + 384
+data     = np.loadtxt(workdir+fname, delimiter="\t", dtype=str)
+Seqs = data[:,0]
+data = data[:,1:].astype('float32')
 
-# Train model
-''' Use different values of lambda (penalty strength) for training to determine the best.
-Train model with both L1 and L2 regularization and compute the errors.'''
-lambdas = 10 ** np.arange(-10, -1, 0.1) # for activation function test
-errors_l1, errors_l2 = [], []
-for l in tqdm(lambdas):
-    np.random.seed(0)
-    model = Sequential()
-    model.add(Dense(21,  activation='softmax', input_shape=(size_input,), kernel_regularizer=l2(l)))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
-    model.fit(x_train, y_train, epochs=100, validation_data=(x_valid, y_valid), 
-              callbacks=[EarlyStopping(patience=1)], verbose=0)
-    y_hat = model.predict(x_valid)
-    errors_l2.append(mse(y_hat, y_valid))
+X = data[:,:feature_size]
+y = data[:, feature_size:]
+print('y.shape = ',y.shape)
 
-for l in tqdm(lambdas):
-    np.random.seed(0)
-    model = Sequential()
-    model.add(Dense(21,  activation='softmax', input_shape=(size_input,), kernel_regularizer=l1(l)))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
-    model.fit(x_train, y_train, epochs=100, validation_data=(x_valid, y_valid), 
-              callbacks=[EarlyStopping(patience=1)], verbose=0)
-    y_hat = model.predict(x_valid)
-    errors_l1.append(mse(y_hat, y_valid))
+agg_output = np.load("agg_output.npy")
+print('agg.shape = ',agg_output.shape)
+MSE = np.zeros(y.shape[0])
+for i in range(y.shape[0]):
+    MSE[i] = mse(agg_output,y[i,:])
+print(MSE.shape)
 
+np.save("MSE_aggregate", MSE)
+"""
 
-np.save(workdir+'mse_l1_ins.npy',errors_l1)
-np.save(workdir+'mse_l2_ins.npy',errors_l2)
+''' This part makes a histogram of the MSEs. '''
 
-# final model
-'''Choose the lambda for L1 and L2 separately that gives the smallest error.'''
-l = lambdas[np.argmin(errors_l1)]
-np.random.seed(0)
-model = Sequential()
-model.add(Dense(21, activation='softmax', input_shape=(size_input,), kernel_regularizer=l1(l)))
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
-history = model.fit(x_train, y_train, epochs=100, validation_data=(x_valid, y_valid), 
-          callbacks=[EarlyStopping(patience=1)], verbose=0)
+MSE = np.load("MSE_aggregate.npy")
 
-model.save(workdir+'L1_ins.h5')
-
-
-l = lambdas[np.argmin(errors_l2)]
-np.random.seed(0)
-model = Sequential()
-model.add(Dense(21, activation='softmax', input_shape=(size_input,), kernel_regularizer=l2(l)))
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
-history = model.fit(x_train, y_train, epochs=100, validation_data=(x_valid, y_valid), 
-          callbacks=[EarlyStopping(patience=1)], verbose=0)
-
-model.save(workdir+'L2_ins.h5')
+fig, ax = plt.subplots()
+ax.hist(MSE*1000, bins=30,label="Aggregate Model")
+ax.set_xlabel ("MSE (x10^-3)")
+ax.set_ylabel("Counts")
+ax.set_title("Model performance on test set")
+plt.show()
