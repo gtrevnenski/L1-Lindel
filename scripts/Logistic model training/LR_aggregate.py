@@ -56,10 +56,17 @@ def onehotencoder(seq):
 # Load data
 #threshold = sys.argv[1]
 
-"""
-''' This part loads testing data. '''
-workdir  = sys.argv[1]
-fname    = sys.argv[2]
+
+''' Load the counts for all targets. '''
+target_to_count = {}
+with open("../../data_course/combi_totalfrequency.txt", 'r') as file:
+    for line in file:
+        target_to_count[line.split(",")[0]] = int(line.split(",")[1])
+
+
+''' This part loads training data. '''
+workdir  = "C:/Users/celin/PycharmProjects/L1-Lindel/data/"
+fname    = "Lindel_training.txt"
 
 label,rev_index,features = pkl.load(open(workdir+'feature_index_all.pkl','rb'))
 feature_size = len(features) + 384 
@@ -74,10 +81,44 @@ frequency of each class, independently of the input. The frequencies are stored 
 X = data[:,:feature_size]
 y = data[:, feature_size:]
 
-agg_output = np.mean(y, axis=0)
+y_scaled = []
+for i in range(y.shape[0]):
+    counts = target_to_count[Seqs[i]] if (Seqs[i] in target_to_count) else 0
+    y_scaled.append(y[i,:]*counts)
+
+''' This part loads testing data. '''
+workdir  = "C:/Users/celin/PycharmProjects/L1-Lindel/data/"
+fname    = "Lindel_test.txt"
+
+data     = np.loadtxt(workdir+fname, delimiter="\t", dtype=str)
+Seqs = data[:,0]
+data = data[:,1:].astype('float32')
+
+# Sum up deletions and insertions to
+''' The first 'feature_size' values are inputs, all others are output. The Aggregate Model will output the average
+frequency of each class, independently of the input. The frequencies are stored to a numpy array file. '''
+
+X = data[:,:feature_size]
+y = data[:, feature_size:]
+
+for i in range(y.shape[0]):
+    counts = target_to_count[Seqs[i]] if (Seqs[i] in target_to_count) else 0
+    if counts == 0:
+        a = y[i,:]
+    y_scaled.append(y[i,:]*counts)
+
+y_scaled = np.array(y_scaled)
+y_summed = np.sum(y_scaled, axis=0) # sum over all targets to find counts per class
+
+agg_output = y_summed / np.sum(y_summed) # normalize over classes
 print(agg_output.shape)
-np.save("agg_output", agg_output)
-"""
+np.save("agg_output_scaled", agg_output)
+
+fig, ax = plt.subplots()
+ax.bar(range(len(agg_output)), agg_output)
+ax.set_xlabel ("outcome class")
+ax.set_ylabel("frequency")
+plt.show()
 
 """
 ''' This part computes the MSE for the aggregate model.
@@ -85,7 +126,7 @@ We load the test data in "Lindel_test.txt". The first 'feature_size' values are 
 of the input items in the data, we compute the MSE between the output and the output of the Aggregate Model. These
 values are collected and visualized in a histogram. '''
 
-workdir  = sys.argv[1]
+workdir  = "C:/Users/celin/PycharmProjects/L1-Lindel/data/"
 fname    = "Lindel_test.txt"
 
 label,rev_index,features = pkl.load(open(workdir+'feature_index_all.pkl','rb'))
@@ -98,23 +139,26 @@ X = data[:,:feature_size]
 y = data[:, feature_size:]
 print('y.shape = ',y.shape)
 
-agg_output = np.load("agg_output.npy")
+agg_output = np.load("agg_output_scaled.npy")
 print('agg.shape = ',agg_output.shape)
 MSE = np.zeros(y.shape[0])
 for i in range(y.shape[0]):
     MSE[i] = mse(agg_output,y[i,:])
 print(MSE.shape)
 
-np.save("MSE_aggregate", MSE)
+np.save("MSE_aggregate_scaled", MSE)
 """
-
+"""
 ''' This part makes a histogram of the MSEs. '''
-
-MSE = np.load("MSE_aggregate.npy")
+MSE = np.load("MSE_aggregate_scaled.npy")
+binwidth = 0.065
 
 fig, ax = plt.subplots()
-ax.hist(MSE*1000, bins=30,label="Aggregate Model")
+ax.hist(MSE*1000, bins=25)
 ax.set_xlabel ("MSE (x10^-3)")
 ax.set_ylabel("Counts")
 ax.set_title("Model performance on test set")
+ax.set_xlim([0, 1.4])
 plt.show()
+"""
+
