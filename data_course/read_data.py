@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 # # label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
 
 
-matrix1 = pkl.load(open('data_course/NHEJ_rep1_final_matrix.pkl','rb'))
-matrix2 = pkl.load(open('data_course/NHEJ_rep2_final_matrix.pkl','rb'))
-matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
+matrix1 = pkl.load(open('NHEJ_rep1_final_matrix.pkl','rb'))
+matrix2 = pkl.load(open('NHEJ_rep2_final_matrix.pkl','rb'))
+matrix3 = pkl.load(open('NHEJ_rep3_final_matrix.pkl','rb'))
 
 # types_of_mutations = set()
 # for i in range(len(matrix1)):
@@ -91,6 +91,15 @@ with open("combi_frequency_arr3.txt", 'w') as file:
                 file.write("\n")
             file.write("---\n")
 
+''' Save for each target the total number of outcomes observed, in order to find the Aggregate model. We sum over the 
+three replicates, as indicated in the caption of figure 2a in the figure. '''
+with open("combi_totalfrequency.txt", 'w') as file:
+    for target, outcomes in frequency_comb.items():
+        counts = 0
+        for freq in outcomes.values():
+            counts += sum(freq)
+        file.write(target+","+str(counts)+"\n")
+
 repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
 repl_1_3_correlation_coefficients = [] 
@@ -162,13 +171,13 @@ sns.set(style='whitegrid')
 sns.violinplot(x="index", y="corr_coef", data=repl_combined_dataframe)
 plt.show()
 
-with open("data_course/pearson_corr_1_2.txt", 'w') as file:
+with open("pearson_corr_1_2.txt", 'w') as file:
     file.write(str(repl_1_2_correlation_coefficients))
 
-with open("data_course/pearson_corr_1_3.txt", 'w') as file:
+with open("pearson_corr_1_3.txt", 'w') as file:
     file.write(str(repl_1_3_correlation_coefficients))
 
-with open("data_course/pearson_corr_2_3.txt", 'w') as file:
+with open("pearson_corr_2_3.txt", 'w') as file:
     file.write(str(repl_2_3_correlation_coefficients))
 
 
