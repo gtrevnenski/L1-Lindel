@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 # # label, rev_index, features = pkl.load(open('feature_index_all.pkl','rb'))
 
 
-matrix1 = pkl.load(open('data_course/NHEJ_rep1_final_matrix.pkl','rb'))
-matrix2 = pkl.load(open('data_course/NHEJ_rep2_final_matrix.pkl','rb'))
-matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
+matrix1 = pkl.load(open('NHEJ_rep1_final_matrix.pkl','rb'))
+matrix2 = pkl.load(open('NHEJ_rep2_final_matrix.pkl','rb'))
+matrix3 = pkl.load(open('NHEJ_rep3_final_matrix.pkl','rb'))
 
 # types_of_mutations = set()
 # for i in range(len(matrix1)):
@@ -61,6 +61,16 @@ for i in range(len(matrix3)):
         else:
             frequency_comb[matrix3[i][2]][matrix3[i][3]][2] += 1
 
+''' Save for each target the total number of outcomes observed, in order to find the Aggregate model. We sum over the 
+three replicates, as indicated in the caption of figure 2a in the figure. '''
+with open("combi_totalfrequency2.txt", 'w') as file:
+    for target, outcomes in frequency_comb.items():
+        counts = 0
+        for freq in outcomes.values():
+            counts += sum(freq)
+        file.write(target+","+str(counts)+"\n")
+
+
 # Remove outcomes with less than 10 UMIs.
 for target, outcome_dicts in frequency_comb.items():
     to_remove = []
@@ -69,6 +79,14 @@ for target, outcome_dicts in frequency_comb.items():
             to_remove.append(outcome)
     for item in to_remove:
         outcome_dicts.pop(item)
+
+# Remove targets with less than 3 outcomes
+to_remove = []
+for target, outcome_dicts in frequency_comb.items():
+    if len(outcome_dicts) < 3:
+        to_remove.append(target)
+for item in to_remove:
+    frequency_comb.pop(item)
 
 with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
@@ -82,6 +100,7 @@ with open("combi_frequency_arr3.txt", 'w') as file:
                     file.write(str(freq[i]) + ",")
                 file.write("\n")
             file.write("---\n")
+
 
 repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
@@ -113,6 +132,8 @@ for target in frequency_comb:
         # normal corr coefficient (i.e. frequencies not permuted (Fig. 2A in the paper))
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl2) > 0:      
             repl_1_2_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl2)[0][1])
+            if(np.corrcoef(frequency_repl1, frequency_repl2)[0][1] < 0):
+                print(np.corrcoef(frequency_repl1, frequency_repl2)[0][1], frequency_repl1, frequency_repl2)
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:      
             repl_1_3_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(frequency_repl3) > 0:      
@@ -121,6 +142,8 @@ for target in frequency_comb:
         # permuted corr coefficient (i.e. frequencies not permuted (Fig. 2B in the paper))
         if np.var(frequency_repl1) > 0 and np.var(permuted_replc2) > 0:      
             repl_1Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc2)[0][1])
+            if(np.corrcoef(frequency_repl1, permuted_replc2)[0][1] < 0):
+                print(np.corrcoef(frequency_repl1, permuted_replc2)[0][1], frequency_repl1, permuted_replc2)
         if np.var(frequency_repl1) > 0 and np.var(permuted_replc3) > 0:      
             repl_1Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(permuted_replc1) > 0:      
@@ -150,13 +173,13 @@ sns.set(style='whitegrid')
 sns.violinplot(x="index", y="corr_coef", data=repl_combined_dataframe)
 plt.show()
 
-with open("data_course/pearson_corr_1_2.txt", 'w') as file:
+with open("pearson_corr_1_2.txt", 'w') as file:
     file.write(str(repl_1_2_correlation_coefficients))
 
-with open("data_course/pearson_corr_1_3.txt", 'w') as file:
+with open("pearson_corr_1_3.txt", 'w') as file:
     file.write(str(repl_1_3_correlation_coefficients))
 
-with open("data_course/pearson_corr_2_3.txt", 'w') as file:
+with open("pearson_corr_2_3.txt", 'w') as file:
     file.write(str(repl_2_3_correlation_coefficients))
 
 
