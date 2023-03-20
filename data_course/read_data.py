@@ -61,6 +61,16 @@ for i in range(len(matrix3)):
         else:
             frequency_comb[matrix3[i][2]][matrix3[i][3]][2] += 1
 
+''' Save for each target the total number of outcomes observed, in order to find the Aggregate model. We sum over the 
+three replicates, as indicated in the caption of figure 2a in the figure. '''
+with open("combi_totalfrequency2.txt", 'w') as file:
+    for target, outcomes in frequency_comb.items():
+        counts = 0
+        for freq in outcomes.values():
+            counts += sum(freq)
+        file.write(target+","+str(counts)+"\n")
+
+
 # Remove outcomes with less than 10 UMIs.
 for target, outcome_dicts in frequency_comb.items():
     to_remove = []
@@ -91,14 +101,6 @@ with open("combi_frequency_arr3.txt", 'w') as file:
                 file.write("\n")
             file.write("---\n")
 
-''' Save for each target the total number of outcomes observed, in order to find the Aggregate model. We sum over the 
-three replicates, as indicated in the caption of figure 2a in the figure. '''
-with open("combi_totalfrequency.txt", 'w') as file:
-    for target, outcomes in frequency_comb.items():
-        counts = 0
-        for freq in outcomes.values():
-            counts += sum(freq)
-        file.write(target+","+str(counts)+"\n")
 
 repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
