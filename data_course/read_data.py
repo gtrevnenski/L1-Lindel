@@ -39,7 +39,7 @@ for i in range(len(matrix2)):
 for i in range(len(matrix3)):
     frequency_comb[matrix3[i][2]] = {}
 
-# count frequencies of different alleles per target
+# Count frequencies of different alleles per target
 for i in range(len(matrix1)):
     if matrix1[i][2] != matrix1[i][3] and matrix1[i][9] != 'complex':
         if matrix1[i][3] not in frequency_comb[matrix1[i][2]]:
@@ -88,6 +88,8 @@ for target, outcome_dicts in frequency_comb.items():
 for item in to_remove:
     frequency_comb.pop(item)
 
+# Store dictionaries of targets with outcomes and counts
+"""
 with open("combi_frequency_data.txt", 'w') as file:
     for key in frequency_comb:
         file.write(key + ": " + str(frequency_comb[key]) + "\n")
@@ -100,7 +102,7 @@ with open("combi_frequency_arr3.txt", 'w') as file:
                     file.write(str(freq[i]) + ",")
                 file.write("\n")
             file.write("---\n")
-
+"""
 
 repl_1_2_correlation_coefficients = []
 repl_2_3_correlation_coefficients = []
@@ -129,26 +131,22 @@ for target in frequency_comb:
 
     if len(frequency_repl1) > 1:
         
-        # normal corr coefficient (i.e. frequencies not permuted (Fig. 2A in the paper))
+        # Normal correlation coefficient (i.e. frequencies not permuted (Fig. 2A in the paper))
         if np.var(frequency_repl1) > 0 and np.var(frequency_repl2) > 0:      
             repl_1_2_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl2)[0][1])
-            if(np.corrcoef(frequency_repl1, frequency_repl2)[0][1] < 0):
-                print(np.corrcoef(frequency_repl1, frequency_repl2)[0][1], frequency_repl1, frequency_repl2)
-        if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:      
+        if np.var(frequency_repl1) > 0 and np.var(frequency_repl3) > 0:
             repl_1_3_correlation_coefficients.append(np.corrcoef(frequency_repl1, frequency_repl3)[0][1])
         if np.var(frequency_repl2) > 0 and np.var(frequency_repl3) > 0:      
             repl_2_3_correlation_coefficients.append(np.corrcoef(frequency_repl2, frequency_repl3)[0][1])
 
-        # permuted corr coefficient (i.e. frequencies not permuted (Fig. 2B in the paper))
+        # Permuted correlation coefficient (i.e. frequencies permuted (Fig. 2B in the paper))
         if np.var(frequency_repl1) > 0 and np.var(permuted_replc2) > 0:      
             repl_1Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc2)[0][1])
-            if(np.corrcoef(frequency_repl1, permuted_replc2)[0][1] < 0):
-                print(np.corrcoef(frequency_repl1, permuted_replc2)[0][1], frequency_repl1, permuted_replc2)
-        if np.var(frequency_repl1) > 0 and np.var(permuted_replc3) > 0:      
+        if np.var(frequency_repl1) > 0 and np.var(permuted_replc3) > 0:
             repl_1Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl1, permuted_replc3)[0][1])
-        if np.var(frequency_repl2) > 0 and np.var(permuted_replc1) > 0:      
+        if np.var(frequency_repl2) > 0 and np.var(permuted_replc1) > 0:
             repl_2Normal_1Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl2, permuted_replc1)[0][1])
-        if np.var(frequency_repl2) > 0 and np.var(permuted_replc3) > 0:      
+        if np.var(frequency_repl2) > 0 and np.var(permuted_replc3) > 0:
             repl_2Normal_3Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl2, permuted_replc3)[0][1])
         if np.var(frequency_repl3) > 0 and np.var(permuted_replc1) > 0:      
             repl_3Normal_1Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl3, permuted_replc1)[0][1])
@@ -156,32 +154,34 @@ for target in frequency_comb:
             repl_3Normal_2Permuted_correlation_coefficients.append(np.corrcoef(frequency_repl3, permuted_replc2)[0][1])
 
 
-repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 2', x] for x in repl_1_2_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
-
-repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs. rep 3', x] for x in repl_1_3_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
-
-repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs. rep 3', x] for x in repl_2_3_correlation_coefficients if x >= 0], columns=['index', 'corr_coef'])
+# Specify a dataframe for each combination of replicates, and concatenate the permuted.
+repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 2', x] for x in repl_1_2_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
+repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 3', x] for x in repl_1_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
+repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs.\nrep 3', x] for x in repl_2_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
 
 permuted_concatenated = repl_1Normal_2Permuted_correlation_coefficients + repl_1Normal_3Permuted_correlation_coefficients + repl_2Normal_1Permuted_correlation_coefficients + repl_2Normal_3Permuted_correlation_coefficients + repl_3Normal_1Permuted_correlation_coefficients + repl_3Normal_2Permuted_correlation_coefficients
-
-repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['permuted comparison', x] for x in permuted_concatenated if x >= 0], columns=['index', 'corr_coef'])
+repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['Permuted comparison', x] for x in permuted_concatenated if x>=0], columns=['index', 'corr_coef'])
 
 repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe, repl_permuted_correlation_coefficients_dataframe]
 repl_combined_dataframe = pd.concat(repl_combined)
-# dirty_corr_coef = [ele for ele in repl_1_2_correlation_coefficients if ele > 0]
+
+# Generate violin plots for the three combinations and for permuted data.
 sns.set(style='whitegrid')
 sns.violinplot(x="index", y="corr_coef", data=repl_combined_dataframe)
+plt.title("Violin plot of distribution of correlation coefficients", size=16)
+plt.xlabel("")
+plt.ylabel("Pearson Correlation")
 plt.show()
 
+# Store correlation coefficients for each combination
+"""
 with open("pearson_corr_1_2.txt", 'w') as file:
     file.write(str(repl_1_2_correlation_coefficients))
-
 with open("pearson_corr_1_3.txt", 'w') as file:
     file.write(str(repl_1_3_correlation_coefficients))
-
 with open("pearson_corr_2_3.txt", 'w') as file:
     file.write(str(repl_2_3_correlation_coefficients))
-
+"""
 
 # with open("repl1_frequency_data.txt", 'w') as file:
 #     for key in frequency_repl1:
