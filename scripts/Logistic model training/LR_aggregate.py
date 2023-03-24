@@ -58,6 +58,14 @@ def onehotencoder(seq):
 
 """
 
+''' Load the counts for all targets. '''
+target_to_count = {}
+with open("../../data_course/combi_totalfrequency.txt", 'r') as file:
+    for line in file:
+        target_to_count[line.split(",")[0]] = int(line.split(",")[1])
+"""
+
+"""
 ''' This part loads the training data. '''
 workdir  = "C:/Users/celin/PycharmProjects/L1-Lindel/data/"
 fname    = "Lindel_training.txt"
@@ -74,6 +82,20 @@ frequency of each class, independently of the input. The frequencies are stored 
 
 X = data[:,:feature_size]
 y = data[:, feature_size:]
+
+'''
+# Here we scale the frequencies by the number of counts for a target
+y_scaled = []
+for i in range(y.shape[0]):
+    counts = target_to_count[Seqs[i]] if (Seqs[i] in target_to_count) else 0
+    y_scaled.append(y[i,:]*counts)
+
+y_scaled = np.array(y_scaled)
+y_summed = np.sum(y_scaled, axis=0) # sum over all targets to find counts per class
+
+agg_output_scaled = y_summed / np.sum(y_summed) #
+np.save("agg_output_scaled", agg_output_scaled)
+'''
 
 agg_output = np.mean(y, axis=0)
 np.save("agg_output", agg_output)
@@ -110,7 +132,6 @@ fig, ax = plt.subplots()
 ax.hist(MSE*1000, bins=25, alpha=0.5)
 ax.set_xlabel ("MSE (x10^-3)")
 ax.set_ylabel("Counts")
-ax.set_title("Model performance on test set")
-# ax.set_xlim([0, 1.4])
+ax.set_title("Performance of the Aggregate Model on the test set")
 plt.show()
-
+plt.savefig('../../Figures/Aggregate.eps', format='eps')
