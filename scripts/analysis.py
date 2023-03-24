@@ -1,10 +1,10 @@
-from tensorflow import keras
 import pandas as pd
 import numpy as np
 from ast import literal_eval
-import pickle
+import pickle as pkl
 import utils
-from Lindel.Predictor import *
+import Lindel
+from Lindel import Predictor
 import os
 
 def find_seq_and_replace(data_set, test_seq, sequences_60bp, test_data_point):
@@ -23,7 +23,7 @@ def find_seq_and_replace(data_set, test_seq, sequences_60bp, test_data_point):
 
 def get_test_set_60bp():
     test_data = []
-    with open('../data_course/Lindel_test.txt') as f:
+    with open('data_course/Lindel_test.txt') as f:
         lines = f.readlines()
         for l in lines:
             line_arr = l.split()
@@ -33,7 +33,7 @@ def get_test_set_60bp():
             test_data.append(row)
 
     seventy_k, homing_design, mh1_200bp, _, _, _ = utils.read_200bp_sequences(
-        '../data_course/algient_NHEJ_guides_final.txt')
+        'data_course/algient_NHEJ_guides_final.txt')
     sequences_60bp = []
 
     for test_data_point in test_data:
@@ -60,30 +60,21 @@ def mse(x, y):
 if __name__ == '__main__':
     get_test_set_60bp()
 
-    # model = keras.models.load_model('C:\TUDelft\BioInformatics\MLB\L1-Lindel\data\L1_del.h5')
-    # layers = model.layers
-    # for layer in model.layers[1]:
-    #     weights = layer.get_weights()
-    #     # bias = layer.get_bias()
-    #     print(weights)
-    # print("here")
-    #
-    # with open('C:\TUDelft\BioInformatics\MLB\L1-Lindel\data_course\\feature_index_all.pkl', 'rb') as f:
-    #     data = pkl.load(f)
-    #     print("here")
-
     test_data = get_test_set_60bp()
     model_del_array_weights, model_del_array_biases, model_ratio_array_weights, model_ratio_array_biases, model_ins_array_weights, model_ins_array_biases = utils.get_weights_biases()
     weights_biases = [model_ratio_array_weights, model_ratio_array_biases, model_del_array_weights, model_del_array_biases,
          model_ins_array_weights, model_ins_array_biases]
 
-    prerequesites = pickle.load('../data_course/model_prereq.pkl'), 'rb'))
+    prerequesites = pkl.load(open(os.path.join(Lindel.__path__[0],'model_prereq.pkl'),'rb'))
 
+    predictions = []
 
     for test_point in test_data:
         test_seq = test_point[0]
-        gen_prediction(test_seq, weights_biases, )
+        frequencies_hat, c = Predictor.gen_prediction(test_seq, weights_biases, prerequesites)
+        predictions.append(frequencies_hat)
 
+    np.save('lindel_output', np.array(predictions))
 
 
 
