@@ -62,19 +62,13 @@ for i in range(len(matrix3)):
             frequency_comb[matrix3[i][2]][matrix3[i][3]][2] += 1
 
 
-# Remove outcomes with less than 10 UMIs.
-for target, outcome_dicts in frequency_comb.items():
-    to_remove = []
-    for outcome, freqs in outcome_dicts.items():
-        if sum(freqs) < 10:
-            to_remove.append(outcome)
-    for item in to_remove:
-        outcome_dicts.pop(item)
-
-# Remove targets with less than 3 outcomes
+# Remove targets with less than 10 UMIs
 to_remove = []
 for target, outcome_dicts in frequency_comb.items():
-    if len(outcome_dicts) < 3:
+    sum_umis = 0
+    for outcome, freqs in outcome_dicts.items():
+        sum_umis += sum(freqs)
+    if sum_umis < 10:
         to_remove.append(target)
 for item in to_remove:
     frequency_comb.pop(item)
@@ -146,12 +140,12 @@ for target in frequency_comb:
 
 
 # Specify a dataframe for each combination of replicates, and concatenate the permuted.
-repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 2', x] for x in repl_1_2_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
-repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 3', x] for x in repl_1_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
-repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs.\nrep 3', x] for x in repl_2_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
+repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 2', x] for x in repl_1_2_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
+repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 3', x] for x in repl_1_3_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
+repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs.\nrep 3', x] for x in repl_2_3_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
 
 permuted_concatenated = repl_1Normal_2Permuted_correlation_coefficients + repl_1Normal_3Permuted_correlation_coefficients + repl_2Normal_1Permuted_correlation_coefficients + repl_2Normal_3Permuted_correlation_coefficients + repl_3Normal_1Permuted_correlation_coefficients + repl_3Normal_2Permuted_correlation_coefficients
-repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['Permuted comparison', x] for x in permuted_concatenated if x>=0], columns=['index', 'corr_coef'])
+repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['Permuted comparison', x] for x in permuted_concatenated if x>0], columns=['index', 'corr_coef'])
 
 repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe, repl_permuted_correlation_coefficients_dataframe]
 repl_combined_dataframe = pd.concat(repl_combined)
