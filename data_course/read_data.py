@@ -140,12 +140,12 @@ for target in frequency_comb:
 
 
 # Specify a dataframe for each combination of replicates, and concatenate the permuted.
-repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 2', x] for x in repl_1_2_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
-repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 3', x] for x in repl_1_3_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
-repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs.\nrep 3', x] for x in repl_2_3_correlation_coefficients if x>0], columns=['index', 'corr_coef'])
+repl_1_2_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 2', x] for x in repl_1_2_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
+repl_1_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 1 vs.\nrep 3', x] for x in repl_1_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
+repl_2_3_correlation_coefficients_dataframe = pd.DataFrame([['rep 2 vs.\nrep 3', x] for x in repl_2_3_correlation_coefficients if x>=0], columns=['index', 'corr_coef'])
 
 permuted_concatenated = repl_1Normal_2Permuted_correlation_coefficients + repl_1Normal_3Permuted_correlation_coefficients + repl_2Normal_1Permuted_correlation_coefficients + repl_2Normal_3Permuted_correlation_coefficients + repl_3Normal_1Permuted_correlation_coefficients + repl_3Normal_2Permuted_correlation_coefficients
-repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['Permuted comparison', x] for x in permuted_concatenated if x>0], columns=['index', 'corr_coef'])
+repl_permuted_correlation_coefficients_dataframe = pd.DataFrame([['Permuted comparison', x] for x in permuted_concatenated if x>=0], columns=['index', 'corr_coef'])
 
 repl_combined = [repl_1_2_correlation_coefficients_dataframe, repl_1_3_correlation_coefficients_dataframe, repl_2_3_correlation_coefficients_dataframe, repl_permuted_correlation_coefficients_dataframe]
 repl_combined_dataframe = pd.concat(repl_combined)
