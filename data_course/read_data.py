@@ -158,8 +158,6 @@ plt.xlabel("")
 plt.ylabel("Pearson Correlation")
 plt.show()
 
-plt.savefig('../Figures/Violin_posvalues2.eps', format='eps')
-
 # Store correlation coefficients for each combination
 """
 with open("pearson_corr_1_2.txt", 'w') as file:
