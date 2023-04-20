@@ -1,8 +1,9 @@
 import pickle as pkl
 import numpy as np
+import sys
 
 # Find labels per index
-workdir = "C:/Users/celin/PycharmProjects/L1-Lindel/data/"
+workdir  = sys.argv[1]
 fname = "Lindel_training.txt"
 
 label, rev_index, features = pkl.load(open(workdir + 'feature_index_all.pkl', 'rb'))

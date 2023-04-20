@@ -3,63 +3,6 @@ from sklearn.cross_decomposition import CCA
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
-X = np.load("input_MHtracts.npy")
-Y = np.load("output_deletionsize.npy")
-n_comp = 2
-
-"""cca = CCA(n_components=n_comp)
-cca.fit(X, Y)
-
-xloadings = cca.x_loadings_
-yloadings = cca.y_loadings_
-
-np.save("xloadings", xloadings)
-np.save("yloadings", yloadings)"""
-
-xloadings = np.load("xloadings.npy")
-yloadings = np.load("yloadings.npy")
-
-c = 0
-for i in range(xloadings.shape[0]):
-    if np.any(np.abs(xloadings[i])>0.7):
-        c+= 1
-        print(i, np.abs(xloadings[i]))
-print("x:^ y:v")
-for i in range(yloadings.shape[0]):
-    if np.any(np.abs(yloadings[i])>0.2): print(i, np.abs(yloadings[i]))
-print ("c=",c)
-
-ypos = np.arange(yloadings.shape[0])  # the label locations
-width = 0.35  # the width of the bars
-fig, axs = plt.subplots(2,1, figsize=(10,6))
-fig.suptitle("Canonical loads for microhomology features and classes for deletion size", fontsize=16)
-plt.subplots_adjust(hspace=0.4)
-
-for i in range(n_comp):
-    axs[0].bar(range(xloadings.shape[0]), (xloadings[:,i]), alpha=0.4, linewidth=1)
-axs[0].set_xlabel("Feature index")
-axs[0].set_ylabel("Canonical load")
-axs[0].set_title("Microhomology features", fontsize=14)
-
-axs[1].bar(ypos - width/2, yloadings[:,0], width, alpha=0.5)
-axs[1].bar(ypos + width/2, yloadings[:,1], width, alpha=0.5)
-axs[1].set_xticks(ypos[::2], np.arange(yloadings.shape[0])[::2])
-axs[1].set_xlabel("Class index")
-axs[1].set_ylabel("Canonical load")
-axs[1].set_title("Deletion size classes", fontsize=14)
-
-trans = mtransforms.ScaledTranslation(-25 / 72, 7 / 72, fig.dpi_scale_trans)
-axs[0].text(0.0, 1.0, "A)", transform=axs[0].transAxes + trans,
-            fontsize='14', va='bottom')
-axs[1].text(0.0, 1.0, "B)", transform=axs[1].transAxes + trans,
-            fontsize='14', va='bottom')
-fig.legend(["Variate 1", "Variate 2"], loc='outside center right')
-
-plt.show()
-# fig.savefig("Variates_3.png")
-
-
-"""
 ''' Plot canonical loads for sequence features and insertion classes only.'''
 X = np.load("input_sequence.npy")
 Y = np.load("output_insertion.npy")
@@ -114,9 +57,9 @@ axs[1,0].text(0.0, 1.0, "C)", transform=axs[1,0].transAxes + trans,
 axs[1,0].legend(["Variate 1", "Variate 2", "Variate 3"], loc='upper left', bbox_to_anchor=(1.2, 1.05))
 
 plt.show()
-fig.savefig("Variates_1.png")"""
+fig.savefig("Variates_1.png")
 
-"""
+
 ''' Plot canonical loads for sequence features and insertion and deletion size classes.'''
 X = np.load("input_sequence.npy")
 Y = np.load("output_insertiondeletionsize.npy")
@@ -158,4 +101,45 @@ axs[1].text(0.0, 1.0, "B)", transform=axs[1].transAxes + trans,
 fig.legend(["Variate 1", "Variate 2", "Variate 3"], loc='outside center right')
 
 plt.show()
-fig.savefig("Variates_2.png")"""
+fig.savefig("Variates_2.png")
+
+'''Plot canonical loads for MH features and deletion size classes only.'''
+X = np.load("input_MHtracts.npy")
+Y = np.load("output_deletionsize.npy")
+n_comp = 2
+
+cca = CCA(n_components=n_comp)
+cca.fit(X, Y)
+
+xloadings = cca.x_loadings_
+yloadings = cca.y_loadings_
+
+
+ypos = np.arange(yloadings.shape[0])  # the label locations
+width = 0.35  # the width of the bars
+fig, axs = plt.subplots(2,1, figsize=(10,6))
+fig.suptitle("Canonical loads for microhomology features and classes for deletion size", fontsize=16)
+plt.subplots_adjust(hspace=0.4)
+
+for i in range(n_comp):
+    axs[0].bar(range(xloadings.shape[0]), (xloadings[:,i]), alpha=0.4, linewidth=1)
+axs[0].set_xlabel("Feature index")
+axs[0].set_ylabel("Canonical load")
+axs[0].set_title("Microhomology features", fontsize=14)
+
+axs[1].bar(ypos - width/2, yloadings[:,0], width, alpha=0.5)
+axs[1].bar(ypos + width/2, yloadings[:,1], width, alpha=0.5)
+axs[1].set_xticks(ypos[::2], np.arange(yloadings.shape[0])[::2])
+axs[1].set_xlabel("Class index")
+axs[1].set_ylabel("Canonical load")
+axs[1].set_title("Deletion size classes", fontsize=14)
+
+trans = mtransforms.ScaledTranslation(-25 / 72, 7 / 72, fig.dpi_scale_trans)
+axs[0].text(0.0, 1.0, "A)", transform=axs[0].transAxes + trans,
+            fontsize='14', va='bottom')
+axs[1].text(0.0, 1.0, "B)", transform=axs[1].transAxes + trans,
+            fontsize='14', va='bottom')
+fig.legend(["Variate 1", "Variate 2"], loc='outside center right')
+
+plt.show()
+fig.savefig("Variates_3.png")

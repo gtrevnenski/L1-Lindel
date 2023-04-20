@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.model_selection import KFold
 from evaluate_cca import evaluate_CCA
 
-# Load data
+# Load data, choose right files! They can be created by running "combine_classes.py"
 X = np.load("input_sequence.npy")
 Y = np.load("output_deletion.npy")
 
