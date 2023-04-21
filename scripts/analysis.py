@@ -8,6 +8,18 @@ from Lindel import Predictor
 import os
 
 def find_seq_and_replace(data_set, test_seq, sequences_60bp, test_data_point):
+    """
+       Finds a specified sequence in a dataset and returns the corresponding 60bp sequence.
+
+       Args:
+           data_set (List[str]): The dataset to search through.
+           test_seq (str): The sequence to search for.
+           sequences_60bp (List[str]): A list to store the 60bp sequences found.
+           test_data_point (List[float]): A list containing data associated with the test sequence.
+
+       Returns:
+           bool: True if the sequence was found and replaced, False otherwise.
+    """
     for seq in data_set:
         pos = seq.find(test_seq, 39)
         if pos >= 0:
@@ -22,6 +34,12 @@ def find_seq_and_replace(data_set, test_seq, sequences_60bp, test_data_point):
 
 
 def get_test_set_60bp():
+    """
+       Reads in data from a file and returns a list of test sequences and associated data.
+
+       Returns:
+           List[List[float]]: A list containing test sequences and associated data.
+    """
     test_data = []
     with open('data_course/Lindel_test.txt') as f:
         lines = f.readlines()
@@ -54,6 +72,13 @@ def get_test_set_60bp():
 
 
 def mse(x, y):
+    """
+       Calculates the mean squared error between two arrays
+        Args:
+        x : The first array.
+        y : The second array.
+    """
+
     return ((x-y)**2).mean()
 
 
