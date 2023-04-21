@@ -8,15 +8,17 @@ import pandas as pd
 from scipy.stats import ks_2samp
 import matplotlib.colors as mcolors
 
-targets_training = read_data("Project_Eduard/data/Lindel_training.txt")
-targets_test = read_data("Project_Eduard/data/Lindel_test.txt")
+# Obtaining data
+targets_training = read_data("data/Lindel_training.txt")
+targets_test = read_data("data/Lindel_test.txt")
 training_test_combined = targets_training + targets_test
 
-targets_training_with_features = read_data_with_features("Project_Eduard/data/Lindel_training.txt")
-targets_test_with_features = read_data_with_features("Project_Eduard/data/Lindel_test.txt")
+targets_training_with_features = read_data_with_features("data/Lindel_training.txt")
+targets_test_with_features = read_data_with_features("data/Lindel_test.txt")
 targets_test_with_features_combined = targets_training_with_features + targets_test_with_features
 filtered_combined = observed_to_expected_CpG_filter_1(training_test_combined, 0.6, 0.5)
-# Training data
+
+# Combining Training & test data in one array
 
 targets_combined_features_dense = [row for row in targets_test_with_features_combined if row[0] in np.array(filtered_combined)[:,0]]
 targets_combined_features_sparse = [row for row in targets_test_with_features_combined if row[0] not in np.array(filtered_combined)[:,0]]

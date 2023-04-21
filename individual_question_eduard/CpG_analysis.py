@@ -7,6 +7,23 @@ import pandas as pd
 from scipy.stats import ks_2samp
 import matplotlib.colors as mcolors
 
+### SCRIPT FOR QUICK CHECK UPS AND NOTES --> CAN BE IGNORED ###
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # read meta data about the features of the training and test data
 label, rev_index, features = pkl.load(open('data/feature_index_all.pkl','rb'))
 
@@ -26,9 +43,9 @@ print(rev_index[540])
 # every deletion event outcome class has it's own MH tracts features. The format is as follows: 'starting position, (starting position + number = end position), length of MH tract.'
 
 # # obtaining sequence data
-# targets_training = read_data("Project_Eduard/data/Lindel_training.txt")
-# targets_test = read_data("Project_Eduard/data/Lindel_test.txt")
-# targets_algient_NHEJ = read_data("Project_Eduard/data/algient_NHEJ_guides_final.txt")
+# targets_training = read_data("data/Lindel_training.txt")
+# targets_test = read_data("data/Lindel_test.txt")
+# targets_algient_NHEJ = read_data("data/algient_NHEJ_guides_final.txt")
 # long_replicate1_targets, replicate1_targets = read_pkl_raw_data('data/NHEJ_rep1_final_matrix.pkl') # is is true that the 6th item is the target sequence? I think so since it's 20 nucleotides long and untouched
 # long_replicate2_targets, replicate2_targets = read_pkl_raw_data('data/NHEJ_rep2_final_matrix.pkl') # is is true that the 6th item is the target sequence? I think so since it's 20 nucleotides long and untouched
 # long_replicate3_targets, replicate3_targets = read_pkl_raw_data('data/NHEJ_rep3_final_matrix.pkl') # is is true that the 6th item is the target sequence? I think so since it's 20 nucleotides long and untouched
@@ -52,8 +69,8 @@ print(rev_index[540])
 # long_replicate2_CG_dense1 = observed_to_expected_CpG_filter_1(long_replicate2_targets, 0.6, 0.5)
 # long_replicate3_CG_dense1 = observed_to_expected_CpG_filter_1(long_replicate3_targets, 0.6, 0.5)
 
-# targets_training_with_features = read_data_with_features("Project_Eduard/data/Lindel_training.txt")
-# targets_test_with_features = read_data_with_features("Project_Eduard/data/Lindel_test.txt")
+# targets_training_with_features = read_data_with_features("data/Lindel_training.txt")
+# targets_test_with_features = read_data_with_features("data/Lindel_test.txt")
 
 # # # DISTRIBUTION OF FREQUENCIES SPARSE VS. DENSE
 
