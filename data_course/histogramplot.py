@@ -5,11 +5,13 @@ import Lindel.Predictor
 import pickle as pkl
 import numpy as np 
 
+# Load data
 test_data = pd.read_csv("data_course\Lindel_test.txt", sep='\t')
 model_del = keras.models.load_model('data_course\L1_del.h5')
 model_del_ins_ratio = keras.models.load_model('data_course\L2_indel.h5')
 model_ins = keras.models.load_model('data_course\L2_ins.h5')
 
+# Load trained model weights
 model_del_array_weights = model_del.trainable_weights[0].numpy()
 model_del_array_bias = model_del.trainable_weights[1].numpy()
 model_ratio_array_weights = model_del_ins_ratio.trainable_weights[0].numpy()
@@ -22,6 +24,14 @@ weights_biases = np.array([model_ratio_array_weights, model_ratio_array_biases, 
 prerequesites = pkl.load(open(os.path.join(Lindel.__path__[0],'model_prereq.pkl'),'rb'))
 
 def openRawData(file):
+    """Read raw data to find longer sequences corresponding to target sequences.
+
+    Args:
+        file (str): filename
+
+    Returns:
+        str[]: longer sequences
+    """
     f = open(file, 'r')
     output = []
     for line in f:
@@ -31,7 +41,7 @@ def openRawData(file):
     
     return output
 
-raw_data = openRawData('data_course/algient_NHEJ_guides_final.txt')
+raw_data = openRawData('Icourse/algient_NHEJ_guides_final.txt')
 
 matrix1 = pkl.load(open('data_course/NHEJ_rep1_final_matrix.pkl','rb'))
 matrix2 = pkl.load(open('data_course/NHEJ_rep2_final_matrix.pkl','rb'))
@@ -39,20 +49,6 @@ matrix3 = pkl.load(open('data_course/NHEJ_rep3_final_matrix.pkl','rb'))
 
 
 test_data_np = test_data.to_numpy()
-
-# test_long_sequence = []
-
-# for test_data_point in test_data_np:
-#     test_seq = test_data_point[0]
-#     for big_string in raw_data:
-#         position = big_string.find(test_seq)
-#         if position != -1:
-#             start = position + 17 - 30
-#             end_position = position + 17 + 30 
-#             bp_60_seq = big_string[start:end_position]
-#             test_long_sequence.append(bp_60_seq)
-
-# print(len(test_long_sequence))
         
 sixty_bp = {}
 
@@ -80,19 +76,5 @@ for test_data_point in test_data_np:
                     sixty_bp[test] = [raw_data_point[0]]
                 else:
                     sixty_bp[test].append(raw_data_point[0])
-            # print(filtered_data_test)
             
     break
-
-# MSE = []
-
-# def mse(x, y):
-#     return ((x-y)**2).mean()
-
-# NOTES: the gen_prediction function needs a 60 bp input (in contrast to the 20 bp test that we are given). It needs this for gen_indel and input_del vectors
-# to take into account the microhomology. Why do we need that for prediction? How can we generate a prediction with only 20 bp input? Are they using another data set perhaps?
-
-# def gen_prediction_adapted(seq,wb,prereq):
-#     '''generate the prediction for all classes, redundant classes will be combined'''
-#     pam = {'AGG':0,'TGG':0,'CGG':0,'GGG':0}
-#     guide = seq[13:33]
